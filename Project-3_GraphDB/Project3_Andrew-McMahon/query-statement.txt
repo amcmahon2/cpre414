@@ -1,0 +1,6 @@
+//By: Andrew McMahon
+
+MATCH (liu:User {name: "liu"})-[:ATTEND]->(sharedClass)<-[:ATTEND]-(coAttendees:User)-[:ATTEND]->(recommendedClass)
+WHERE NOT (liu)-[:ATTEND|TEACHES]->(recommendedClass)
+RETURN recommendedClass.name AS Recommended, COUNT(*) AS Confidence
+ORDER BY Confidence DESC;

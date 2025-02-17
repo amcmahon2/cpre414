@@ -1,0 +1,85 @@
+//Query 1:
+SELECT[Measures].[Sales Amount] on columns,
+[Sales Territory].[State Province Name].members on rows
+from [Adventure Works DW] 
+where ([Sales Territory].[Country Region Code].&[US])
+
+
+//Query 2:
+SELECT {
+	[Measures].[Sales Amount],
+	[Measures].[Fact Internet Sales Reason Count],
+	[Measures].[Sales Amount Quota],
+	[Measures].[End Of Day Rate],
+	[Measures].[Fact Internet Sales Count],
+	[Measures].[Freight],
+	[Measures].[Order Quantity],
+	[Measures].[Product Standard Cost]
+} on columns,
+FILTER(
+	([Sales Territory].[State Province Name].members, [Order Date].[Calendar Quarter].members),
+	[Measures].[Sales Amount] > 0
+) on rows
+from [Adventure Works DW] 
+where ([Sales Territory].[Country Region Code].&[US])
+
+
+//Query 3:
+SELECT
+[Measures].[Sales Amount] on columns,
+{
+	[Dim Date].[Calendar Year].members * [Dim Employee].[Department Name].[Department Name]
+} on rows
+from [Adventure Works DW] 
+where [Dim Employee].[Marital Status].&[M]
+
+
+//Query 4:
+WITH 
+MEMBER [Measures].[3 Month Moving Average] AS
+  Avg(
+    {[Dim Date].[English Month Name].CurrentMember.Lag(2):[Dim Date].[English Month Name].CurrentMember },
+    [Measures].[Sales Amount]
+  )
+SELECT 
+  {[Measures].[3 Month Moving Average]} on columns,
+  {[Dim Product].[English Product Name].members } on rows
+FROM 
+  [Adventure Works DW]
+
+
+//Query 5:
+WITH 
+MEMBER [Measures].[Sales in current quarter of previous year] as
+  (
+    [Measures].[Sales Amount], 
+    ParallelPeriod([Dim Date].[Calendar Quarter].[Calendar Quarter], 4, [Dim Date].[Calendar Quarter].CurrentMember)
+  )
+member [Measures].[Sales Growth] as
+  ([Measures].[Sales Amount] - [Measures].[Sales Previous Year]) / [Measures].[Sales Previous Year],
+  FORMAT_STRING = "Percent"
+SELECT 
+  {
+    [Measures].[Sales in current quarter of previous year], 
+    [Measures].[Sales Growth]
+  } ON COLUMNS,
+ [Sales Territory].[State Province Name].members on rows
+FROM 
+  [Adventure Works DW]
+where ([Sales Territory].[Country Region Code].&[US])
+
+
+//KPI images are attached in .pdf file
+
+
+
+
+
+
+
+
+
+
+
+
+
